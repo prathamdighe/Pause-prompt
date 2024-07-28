@@ -1,3 +1,4 @@
+// Check if extension is active
 chrome.storage.sync.get(['extensionActive', 'repeatIntervals'], function(data) {
   if (data.extensionActive !== false) {  // Default to active if not set
     let videos = document.querySelectorAll('video');
@@ -5,14 +6,20 @@ chrome.storage.sync.get(['extensionActive', 'repeatIntervals'], function(data) {
       let initialPauseDone = false;
       let repeatIntervals = data.repeatIntervals;
 
-      function pauseAt5() {
-        let pauseTime = video.duration * 0.05;  // Set to 5% for testing
+      function pauseAt37() {
+        let pauseTime = video.duration * 0.37;  // Set to 37% for final implementation
 
         video.addEventListener('timeupdate', function() {
           if (video.currentTime >= pauseTime && !initialPauseDone) {
             video.pause();
             initialPauseDone = true;
             showPausePrompt();
+          }
+        });
+
+        video.addEventListener('seeked', function() {
+          if (video.currentTime < pauseTime) {
+            initialPauseDone = false;
           }
         });
       }
@@ -46,7 +53,7 @@ chrome.storage.sync.get(['extensionActive', 'repeatIntervals'], function(data) {
           video.play();
           document.body.removeChild(prompt);
           if (repeatIntervals) {
-            pauseAtNext5();
+            pauseAtNext37();
           }
         };
 
@@ -55,8 +62,8 @@ chrome.storage.sync.get(['extensionActive', 'repeatIntervals'], function(data) {
         document.body.appendChild(prompt);
       }
 
-      function pauseAtNext5() {
-        let nextPauseTime = video.currentTime + ((video.duration - video.currentTime) * 0.05);
+      function pauseAtNext37() {
+        let nextPauseTime = video.currentTime + ((video.duration - video.currentTime) * 0.37);
 
         video.addEventListener('timeupdate', function() {
           if (video.currentTime >= nextPauseTime) {
@@ -64,9 +71,15 @@ chrome.storage.sync.get(['extensionActive', 'repeatIntervals'], function(data) {
             showPausePrompt();
           }
         });
+
+        video.addEventListener('seeked', function() {
+          if (video.currentTime < nextPauseTime) {
+            initialPauseDone = false;
+          }
+        });
       }
 
-      pauseAt5();
+      pauseAt37();
     });
   }
 });
